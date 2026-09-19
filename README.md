@@ -1,78 +1,126 @@
-# 🛠️ blender-labor - Workflow Optimization Add-on for Blender
+# Blender Labor（Labor 场景装配工具集）
 
-**[🇨🇳 点击此处查看中文简介 (Click Here for Chinese Introduction)](#中文简介)**
+> 移植自 3ds Max 插件 **AssemblyTool 1.191**，专为 Blender 重新设计的场景装配效率工具集。
+> 设计原则：**不重复造轮子** —— Blender 已原生具备的功能一律不做，只补齐 Blender 缺失的「摆放与装配」效率工具。
 
-Blender Labor is a collection of essential tools designed to **optimize and accelerate** common modeling, scene organization, and material management tasks in Blender. It focuses on simplifying repetitive work, allowing you to concentrate more on creation.
+适用 Blender **3.6+**（兼容 4.x，导入/导出 API 自动适配）。
 
-## ✨ Plugin Features
+---
 
-This add-on provides a set of highly focused functions for scene cleanup and workflow improvement:
+## 安装
 
-* **Move to New Collection:** Creates a new collection for the selected object(s), naming the collection after the object's name.
-* **Move to Origin:** Moves the selected object(s) to the scene's world origin (0, 0, 0).
-* **Material Rename:** Bulk renames materials within the material slots using the selected model's name.
-* **Replace Material:** Replaces the selected model's material slots with **empty material slots**.
-* **Delete Empty Slots:** Removes all material slots on the model that do not have a material assigned.
+1. `blender-labor.zip` **无需解压**；
+2. Blender 菜单：`编辑 → 偏好设置 → 插件 → 安装`（4.2+ 为「从磁盘安装」），选择 zip；
+3. 勾选启用 **Blender Labor**；
+4. 在 3D 视口按 `N` 打开侧栏，找到 **Labor** 分类。
 
-## ⬇️ Download
+卸载：偏好设置 → 插件 → 移除。
 
-| Version | Link | Description |
-| :--- | :--- | :--- |
-| **Stable** | [Download Now](Your stable release link) | Recommended for all users. |
-| **Preview** | [Download Latest Preview Here](https://codeload.github.com/VINCEOFX/blender-labor/zip/refs/heads/main) | Try out new features before the official stable release. |
+---
 
-## ⚙️ Installation Method
+## 功能清单
 
-1.  Download the plugin archive (`.zip` file).
-2.  Open the **Edit >> Preferences** tab in the Blender menu.
-3.  Select the **Add-ons** tab.
-4.  Click the **Install** button and select the downloaded plugin archive file.
-5.  Search for `labor` in the list and **enable the add-on**.
+| N 面板分组 | 功能 | 操作 |
+|---|---|---|
+| 下落 · 对齐 · 间距 | 下落到场景 / 下落到 Z=0 | 选中物体 → 点按钮（偏移、法线对齐可在 F9 重做面板调） |
+| | 快速对齐（最小/中心/最大） | 选多个物体，活动物体为基准 |
+| | 等距排列（X/Y 轴 + 间距） | 选多个物体 |
+| | 选择重叠物体 | 快速找出穿插的模型 |
+| 散布 | 一键散布到表面 | 选中散布物体，**最后 Shift 选表面**，点按钮 |
+| 绘制 | 笔刷式摆放 | 以活动物体为画笔，移动预览，**左键盖印、右键结束**；间距/随机旋转/随机缩放可在面板设置 |
+| 随机化 · 替换 | 随机化变换（位置/旋转/缩放 + 种子） | 换种子可反复重掷；Ctrl+Z 撤销 |
+| | 旋转归零 / 缩放 100% | — |
+| | 替换为活动物体 | 被替换物体的变换自动继承 |
+| | 从集合随机替换 | 防止"整齐划一"的换树/换人群 |
+| 多物体阵列 | 多个**不同**物体沿 X/Y/Z 批量复制排列 | 单物体请直接用原生阵列修改器 |
+| 自动成组 · 虚拟体 | 按距离容差自动分组到集合 | 先调小容差试错，满意再执行 |
+| | 按包围盒创建适配空物体（Dummy） | 可选底部中心、自动父子级 |
+| 网格排布 · 打包 | 网格排布（资产清点/展示图） | 支持按尺寸排序、底部落地 |
+| | 紧密打包（Shelf 堆积，3D 打印排版） | 支持随机旋转 90° 提高填充率 |
+| 批量导入 · 导出 | 整个文件夹模型批量导入并自动排开 | obj/fbx/ply/stl/glb/gltf，按文件建集合 |
+| | 一物一文件批量导出 | 每个顶层物体（含子级）独立导出，导出前可应用变换 |
+| 材质 · UV | 按材质合并（导入碎片化模型救星） | — |
+| | 复制 UV 通道 | 一套原始 UV + 一套展平 UV |
+| | 随机物体显示色 | 等价 Max 的随机线框色 |
+| 社区呼声 · 补缺 | 圆周阵列 | 绕 3D 游标或包围盒中心环形排列，可放射状朝向圆心 |
+| | 缩放到精确尺寸 | 以包围盒底部中心为基准，底部位置不动 |
+| | 按尺寸范围选择 / 按面数范围选择 | 原生"选择相似"只能选相同值，这里支持范围筛选（面数含修改器评估） |
+| | 纹理密度 Texel Density | 测量 + 统一设置（px/米）；各 UV 岛独立绕自身中心缩放，布局不乱 |
+| | 快速物理沉降 | 刚体结算 N 帧后烘焙为普通变换并自动移除物理（堆叠/散落免手摆） |
+| | 场景清理 | 删空网格物体、合并 `.001` 重复材质、可选清孤儿数据 |
+| | 原点到底部中心 | 物体世界位置不变，落地摆放/缩放不再歪 |
+| 下落面板（新增） | 放置到表面 | 选中物体 → 最后选目标表面 → 原地放到表面上（散布的"移动版"，可法线对齐/随机旋转缩放） |
+| 资产整理 | 材质按物体重命名 | `物体名_序号`（整合用户脚本） |
+| | 快速替换材质 | 把所选物体材质换成活动物体当前材质（所有槽/仅第一槽） |
+| | 清除空材质槽 | 整合自用户脚本 |
+| | 物体各自建集合 | 每个物体移入以自己命名的新集合（可跳过独占集合的物体） |
+| | 归位到原点 | 物体原点归零 或 底部中心对齐世界原点 |
+| | 批量标准化 | 旋转归零/缩放统一（烘焙到网格）+ 原点到底部中心 + 底部落地，一键洗干净下载/Kitbash 资产 |
+| | 选择/删除重复网格 | 找出共享同一网格数据的重复物体（每组保留一个） |
+| | 资产体检 | 一键扫描：缺失贴图、大贴图、重复材质、未使用材质、空物体、高面数、重复网格；可直接选中问题物体 |
 
-## 📧 Contact & Contribution
+---
 
-| Attribute | Detail |
-| :--- | :--- |
-| **Author** | Vino |
-| **Personal Website** | [https://vinofx.com](https://vinofx.com) |
-| **GitHub** | [https://github.com/vinceofx](https://github.com/vinceofx) |
-| **Bilibili** | [Vino's Bilibili Page](https://space.bilibili.com/250546761?spm_id_from=333.1007.0.0) |
+## 与 AssemblyTool 的功能对照（重要：哪些没移植，为什么）
 
-Feel free to submit issues or suggestions on [GitHub Issues](https://github.com/VINCEOFX/blender-labor/issues).
+### ❌ 未移植 —— Blender 已原生覆盖，不必重复
 
-## 📄 License & Copyright
+| AssemblyTool 功能 | Blender 原生做法 |
+|---|---|
+| 变换：快速旋转、180/90/45 度旋转 | `R` / `R Z 90 回车`，或 N 面板直接输入 |
+| 变换：按缩放移动、按多边形位移 | 原生 Gizmo + 吸附（磁铁开关 + `Ctrl` 步进） |
+| 选择：按材质/实例/尺寸选择 | `选择相似`（Shift+G）已含材质、数据等 |
+| 轴心：移至中心、Z 最小、对齐世界 | `物体 → 设置原点` 全套 |
+| 几何体：重置 XForm、焊接、法线翻转、平滑 | `应用变换`、`按距离合并`、`重算法线`、`平滑着色` |
+| 几何体：四边形化 | 原生三角→四边（Tris to Quads） |
+| 材质：合并多维材质、拾取材质 | Ctrl+L 链接材质、吸管；材质槽原生管理 |
+| UV：打包排布、展平/展开 | `UV → 按平均值/角度智能投影`、`打包岛`（Pack Islands） |
+| 组：成组/解组/炸开/打开 | `Ctrl+G` / 集合（Outliner 全套） |
+| 图层 | 集合（Collections）原生覆盖 |
+| 修改器快捷添加墙 | 修改器下拉列表 + 收藏夹（Shift+右键） |
+| 文件：导入/导出/保存 | 原生菜单/快捷键 |
+| 收集器（贴图收集、缺失修复） | `文件 → 外部数据 → 查找缺失文件 / 打包资源` |
+| 重命名器 / 批量重命名 / 字母重命名 | `F3 → 批量重命名`（Batch Rename，功能极强，支持前缀/后缀/计数/正则/按数据名） |
+| 选择器（命名选择集） | 集合 + 本插件「自动成组」；或 `物体属性 → 集合` |
+| 面数统计 | 视口 `统计信息` 叠加（视口叠加层里勾选） |
+| 视口开关全家桶 | Blender 视口叠加层/着色模式原生 |
+| 实用工具：内存释放 | `F3 → 清除所有对象用户/垃圾回收`（通常不需要） |
+| 对象/材质类别管理器 | 大纲视图按类型过滤（漏斗图标） |
 
-* **Open Source License:** **MIT License**
-* **Copyright Notice:** Copyright (c) 2024 Vino. All rights reserved.
+### ❌ 未移植 —— Blender 无对应生态，不适用
 
-***
+| 功能 | 原因 |
+|---|---|
+| 优化器（VRay 代理） | 依赖 VRay；Blender 用 `链接/追加集合` 做代理占位 |
+| MassFX 刚体面板 | Blender 刚体（Rigid Body）原生且更强 |
+| PBR 转换器 | Blender 本身就是 PBR 工作流 |
+| MDL 材质 | NVIDIA MDL 是 Max/Omniverse 专用 |
+| 转换贴图 / 缩放贴图 | 交给图像处理软件或引擎管线更合适 |
 
-## 中文简介
+### ✅ 已移植 —— Blender 缺失或原生方案太繁琐
 
-Blender Labor 是一套旨在**优化和加速** Blender 日常建模、整理和材质工作流程的实用工具集。它专注于简化重复性任务，提升您的创作效率。
+下落、快速对齐、等距排列、**散布（一键版）**、**绘制（笔刷摆放）**、随机化、替换器、多物体阵列、自动成组、虚拟体放置、网格排布、紧密打包、批量导入/导出、按材质合并、复制 UV 通道、随机物体显示色、重叠检测，以及社区呼声补缺包：**圆周阵列、精确尺寸缩放、按尺寸/面数范围选择、纹理密度、快速物理沉降、场景清理、原点到底部中心**。
 
-### 插件特性
+> 说明：几何节点/粒子系统也能做高级散布（密度贴图、动态筛选），本插件的散布是**一键轻量版**，两者互补不冲突。
 
-该插件提供了一系列专注于整理和清理场景元素的实用功能：
+---
 
-* **移动到新集合 (Move to New Collection):** 为选中对象创建新的集合，并以对象名命名该集合。
-* **移动到原点 (Move to Origin):** 将选中对象移动至场景的世界原点。
-* **材质重命名 (Material Rename):** 使用选中模型的名称批量重命名材质插槽中的材质球。
-* **替换材质为空 (Replace Material):** 将选中模型的材质插槽替换为空材质插槽。
-* **删除空插槽 (Delete Empty Slots):** 删除模型上所有未分配材质球的材质插槽。
+## 版本
 
-### 安装方法
+- 1.2.0 — 新增「资产整理」面板（整合用户脚本 5 项 + 批量标准化/重复网格检测/资产体检），下落面板新增"放置到表面"。
+- 1.1.0 — 新增「社区呼声 · 补缺」：圆周阵列、精确尺寸缩放、按尺寸/面数范围选择、纹理密度（测量/设置）、快速物理沉降、场景清理、原点到底部中心。
+- 1.0.0 — 首发：完成首批 17 项移植。
 
-1.  下载插件压缩包 (`.zip` 文件)。
-2.  在 Blender 菜单中打开 **编辑 >> 偏好设置** 选项卡。
-3.  选择 **插件** 选项卡。
-4.  点击 **安装** 按钮，选择下载的插件压缩包文件。
-5.  在列表中搜索 `labor` 并启用插件。
+## 后续路线图（参考）
 
-### 联系方式
+- **1.3 资产整理深化**：几何级重复检测（非同名但拓扑相同）、资产清理 Preview 确认流、体检报告分类点击选中；
+- **1.4 选择与批处理**：高级条件选择器（组合条件）、智能命名（按集合/类型/材质生成 `SM_Tree_001` 式资产名）、批量变换/材质/集合处理。
+- 原则：不与 Geometry Nodes、Asset Browser、Outliner、Batch Rename 竞争——只解决"我知道要干什么，但原生要点 5~10 步"的问题。
 
-* **作者：** Vino
-* **个人网站：** [https://vinofx.com](https://vinofx.com)
-* **哔哩哔哩：** [Vino 的 B站空间](https://space.bilibili.com/250546761?spm_id_from=333.1007.0.0)
+## 已知限制
 
-欢迎在 [GitHub](https://github.com/VINCEOFX/blender-labor/issues) 上提交您遇到的问题或新功能的建议。
+- 「绘制」暂不支持列表画笔/沿路径连续摆放（跟随模式），后续版本加入；
+- 「按材质合并」按物体第一个材质槽归类；
+- 「散布/绘制」产物为关联复制（共享网格数据），改造型需先 `物体 → 关联数据 → 断开关联`；
+- 「纹理密度」基于活动 UV 通道与方形参考贴图尺寸估算，世界表面积按中位缩放近似；
+- 「快速物理沉降」使用场景刚体世界；若场景已有动画刚体，结算期间会被一并推进。

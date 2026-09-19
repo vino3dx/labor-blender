@@ -1,0 +1,17 @@
+# 3ds Max
+*.max.bak
+*.max.~*
+autobak/
+*Thumbs.db
+.DS_Store
+
+# MAXScript
+*.mxs
+*.mse
+*.bak
+
+# python tooling in this repo
+__pycache__/
+*.pyc
+
+.workbuddy/
